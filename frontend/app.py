@@ -40,7 +40,10 @@ if st.button('Predecir Estado'):
             resultado = response.json()
             estado = resultado.get('estado_predicho', 'Error')
 
-            if estado == 'ENFERMEDAD AGUDA':
+            # Nueva Lógica de display
+            if estado == 'ENFERMEDAD TERMINAL':
+                st.error(f'Resultado: {estado} 💀')
+            elif estado == 'ENFERMEDAD AGUDA':
                 st.error(f'Resultado: {estado} 🚨')
             elif estado == 'ENFERMEDAD CRÓNICA':
                 st.warning(f'Resultado: {estado} ⚠️')

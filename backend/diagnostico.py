@@ -1,4 +1,4 @@
-def predecir_estado(fiebre, dolor, cambios_piel):
+def predecir_estado(fiebre: bool, dolor: str, cambios_piel: bool):
     """
     Predice el estado de un paciente basado en tres síntomas.
    
@@ -13,28 +13,20 @@ def predecir_estado(fiebre, dolor, cambios_piel):
     """
     
     # --- Lógica de decisión ---
+
+    # Lógica para ENFERMEDAD TERMINAL (Nueva)
+    if fiebre and dolor == "Agudo" and cambios_piel:
+        return "ENFERMEDAD TERMINAL"
     
-    # 1. ENFERMEDAD AGUDA (Prioridad más alta)
-    # Dolor agudo O fiebre + rash 
-    if dolor == 'Agudo' or (fiebre == True and cambios_piel == True):
-        return 'ENFERMEDAD AGUDA'
-    
-    # 2. ENFERMEDAD CRÓNICA
-    # Cambios en la piel sin fiebre 
-    # (Ya sabemos que el dolor no es 'Agudo' por la regla anterior)
-    elif cambios_piel == True and fiebre == False:
-        return 'ENFERMEDAD CRÓNICA'
-        
-    # 3. ENFERMEDAD LEVE
-    # Fiebre o dolor leve, pero sin las condiciones agudas/crónicas
-    elif fiebre == True or dolor == 'Leve':
-        return 'ENFERMEDAD LEVE'
-        
-    # 4. NO ENFERMO
-    # Si no es Aguda, ni Crónica, ni Leve, es el caso base.
-    else:
-        # Esto solo ocurre si fiebre=False, dolor='No', cambios_piel=False
-        return 'NO ENFERMO'
+  # Lógica existente (la ajustamos un poco para que no se pise)
+    if dolor == "Agudo" and not cambios_piel:
+        return "ENFERMEDAD AGUDA"
+    if fiebre and not (dolor == "Agudo"):
+        return "ENFERMEDAD LEVE"
+    if cambios_piel and not (dolor == "Agudo"):
+        return "ENFERMEDAD CRÓNICA"
+
+    return "NO ENFERMO"
 
 # --- Bloque para probar la función ---
 # Esto solo se ejecuta si corres este archivo directamente
