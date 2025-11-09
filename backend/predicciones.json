@@ -1,5 +1,57 @@
 {
-    "total_por_categoria": {},
-    "ultimas_5": [],
-    "fecha_ultima_prediccion": null
+    "total_por_categoria": {
+        "ENFERMEDAD TERMINAL": 7,
+        "NO ENFERMO": 3,
+        "ENFERMEDAD LEVE": 10,
+        "ENFERMEDAD AGUDA": 7,
+        "ENFERMEDAD CR\u00d3NICA": 2
+    },
+    "ultimas_5": [
+        {
+            "fecha": "2025-11-09T19:08:37.041838",
+            "prediccion": "ENFERMEDAD AGUDA",
+            "input": {
+                "fiebre": false,
+                "dolor": "Agudo",
+                "cambios_piel": false
+            }
+        },
+        {
+            "fecha": "2025-11-09T19:08:32.793365",
+            "prediccion": "ENFERMEDAD TERMINAL",
+            "input": {
+                "fiebre": true,
+                "dolor": "Agudo",
+                "cambios_piel": true
+            }
+        },
+        {
+            "fecha": "2025-11-09T19:08:28.734684",
+            "prediccion": "ENFERMEDAD LEVE",
+            "input": {
+                "fiebre": true,
+                "dolor": "No",
+                "cambios_piel": false
+            }
+        },
+        {
+            "fecha": "2025-11-09T18:56:36.945872",
+            "prediccion": "NO ENFERMO",
+            "input": {
+                "fiebre": false,
+                "dolor": "No",
+                "cambios_piel": false
+            }
+        },
+        {
+            "fecha": "2025-11-09T18:56:31.520461",
+            "prediccion": "ENFERMEDAD AGUDA",
+            "input": {
+                "fiebre": true,
+                "dolor": "Agudo",
+                "cambios_piel": false
+            }
+        }
+    ],
+    "fecha_ultima_prediccion": "2025-11-09T19:08:37.041838"
 }

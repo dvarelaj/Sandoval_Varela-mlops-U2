@@ -14,74 +14,49 @@ Estructura del Proyecto
 
 └── mi-taller-front/ (Carpeta del Front-End - Streamlit)
 
-Cómo Desplegar la Solución Completa (Desde Cero)
+---
+
+## Cómo Desplegar la Solución Completa (Desde Cero)
+
 Sigue estos pasos desde tu terminal.
 
-1. Inicia Docker Desktop
-Asegúrate de que la aplicación Docker Desktop esté abierta y corriendo en tu Mac.
+### 1. Requisitos
+* Tener **Docker Desktop** instalado y en ejecución.
+* Haber clonado este repositorio.
 
-2. Crea la Red de Docker
-Esta red permite que el front-end y el back-end se comuniquen. (Solo necesitas hacer esto una vez).
-```bash
-docker network create mi-taller-net
-```
-3. Construye el Back-End (API)
+### 2. Construir y Ejecutar
 
-Navega a la carpeta del back-end:
+Este proyecto usa **Docker Compose v2** para gestionar ambos servicios (backend y frontend).
 
-```bash
-    # Reemplaza la línea de abajo con la ruta a la carpeta en tu máquina
-    cd backend
- ```
-Construye la imagen de la API:
-```bash
-docker build -t api-diagnostico .
-```
-4. Construye el Front-End (Streamlit)
-Navega a la carpeta del front-end:
-```bash
-    # Reemplaza la línea de abajo con la ruta a la carpeta en tu máquina
-    cd frontend
-```
-Construye la imagen de la interfaz:
-```bash
-docker build -t front-diagnostico .
-```
-5. Inicia ambos servicios
-Importante: Si reinicias tu Mac, solo necesitas repetir este paso 5.
+**Nota:** Docker Desktop usa `docker compose` (con espacio) en lugar de `docker-compose` (con guion).
 
-Lanza el Back-End:
-(Limpia por si acaso) 
-```bash
-docker rm -f mi-servicio-api
-```
+1.  Navega a la raíz de este proyecto (donde está el archivo `docker-compose.yml`).
+2.  Ejecuta el siguiente comando:
 
-(Lanza el contenedor) 
-```bash
-docker run -d -p 8000:8000 --network mi-taller-net --name mi-servicio-api api-diagnostico
-```
-Lanza el Front-End:
+    ```bash
+    docker compose up -d --build
+    ```
+* `up`: Crea y levanta los contenedores.
+* `-d`: Los ejecuta en segundo plano (detached).
+* `--build`: Fuerza a Docker a reconstruir las imágenes con cualquier cambio que hayas hecho.
 
-(Limpia por si acaso) 
-```bash
-docker rm -f mi-servicio-front
-```
+### 3. ¡Usa la Aplicación!
 
-(Lanza el contenedor) 
-```bash
-docker run -d -p 8501:8501 --network mi-taller-net --name mi-servicio-front front-diagnostico
-```
-
-6. ¡Usa la Aplicación!
 Ahora tienes dos servicios corriendo:
 
-Para usar la aplicación web (Front-End): Abre tu navegador y ve a: http://localhost:8501
+* **Para usar la aplicación web (Front-End):**
+    Abre tu navegador y ve a: **`http://localhost:8501`**
 
-Para probar la API directamente (Back-End): Abre tu navegador y ve a: http://localhost:8000/docs
+* **Para probar la API directamente (Back-End):**
+    Abre tu navegador y ve a: **`http://localhost:8000/docs`**
 
-(Opcional) Cómo detener todo
+---
+
+## (Opcional) Cómo detener todo
+
 Para apagar ambos servicios, ejecuta:
+
 ```bash
-docker stop mi-servicio-api mi-servicio-front
+docker compose down
 ```
 
