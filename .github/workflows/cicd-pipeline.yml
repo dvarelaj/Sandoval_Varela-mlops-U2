@@ -82,37 +82,41 @@ jobs:
       - name: 1. Checkout del código
         uses: actions/checkout@v4
 
-      - name: 2. Configurar Python 3.10
+      - name: 2. Convertir nombre de repositorio a minúsculas
+        id: repo
+        run: echo "name=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: 3. Configurar Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: 3. Instalar dependencias del Backend
+      - name: 4. Instalar dependencias del Backend
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
-      - name: 4. Correr Pruebas Unitarias (Verificación final)
+      - name: 5. Correr Pruebas Unitarias (Verificación final)
         run: |
           python -m pytest backend/test_main.py
 
-      - name: 5. Iniciar sesión en GitHub Container Registry (GHCR)
+      - name: 6. Iniciar sesión en GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 6. Construir y Publicar imagen del Backend
+      - name: 7. Construir y Publicar imagen del Backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/${{ toLowerCase(github.repository) }}/backend:latest
+          tags: ghcr.io/${{ steps.repo.outputs.name }}/backend:latest
 
-      - name: 7. Construir y Publicar imagen del Frontend
+      - name: 8. Construir y Publicar imagen del Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ghcr.io/${{ toLowerCase(github.repository) }}/frontend:latest
+          tags: ghcr.io/${{ steps.repo.outputs.name }}/frontend:latest
