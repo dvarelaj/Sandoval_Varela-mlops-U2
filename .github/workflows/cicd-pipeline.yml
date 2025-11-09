@@ -49,7 +49,7 @@ jobs:
 
       - name: 5. Correr Pruebas Unitarias (Pytest)
         run: |
-          pytest backend/test_main.py
+          python -m pytest backend/test_main.py
 
       - name: 6. Comentar en el PR (Éxito)
         # Condición: Solo ejecutar si los pasos anteriores (incluyendo las pruebas) fueron exitosos
