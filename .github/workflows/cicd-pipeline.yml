@@ -112,11 +112,11 @@ jobs:
         with:
           context: ./backend  # El directorio del Dockerfile
           push: true
-          tags: ghcr.io/${{ toLower(github.repository) }}/backend:latest # ghcr.io/dvarelaj/Sandoval_Varela-mlops-U2/backend:latest
+          `tags: ghcr.io/${{ github.repository # ghcr.io/dvarelaj/Sandoval_Varela-mlops-U2/backend:latest
 
       - name: 7. Construir y Publicar imagen del Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend # El directorio del Dockerfile
           push: true
-          tags: ghcr.io/${{ toLower(github.repository) }}/frontend:latest # ghcr.io/dvarelaj/Sandoval_Varela-mlops-U2/frontend:latest
+          t`tags: ghcr.io/${{ github.repository
