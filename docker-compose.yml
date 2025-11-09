@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Servicio del Back-End (FastAPI)
+  backend:
+    build: ./backend
+    container_name: mi-servicio-api
+    ports:
+      - "8000:8000"
+    networks:
+      - mi-taller-net
+    # Montamos un volumen para que el archivo predicciones.json persista
+    volumes:
+      - ./backend:/app 
+
+  # Servicio del Front-End (Streamlit)
+  frontend:
+    build: ./frontend
+    container_name: mi-servicio-front
+    ports:
+      - "8501:8501"
+    networks:
+      - mi-taller-net
+    # Depende del backend para iniciarse
+    depends_on:
+      - backend
+
+# Red para que se comuniquen
+networks:
+  mi-taller-net:
+    driver: bridge
