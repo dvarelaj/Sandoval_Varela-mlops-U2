@@ -1,0 +1,122 @@
+name: CI/CD Pipeline del Taller
+
+# Disparadores:
+# 1. En cada Pull Request que apunte a la rama 'main'
+# 2. En cada Push (commit) que se haga a la rama 'main'
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+# Permisos que necesita el workflow
+permissions:
+  contents: read
+  packages: write       # Para publicar imágenes en GHCR
+  pull-requests: write  # Para poder comentar en el PR
+
+jobs:
+  # --- TRABAJO 1: EJECUTAR EN PULL REQUESTS ---
+  run-ci-on-pr:
+    # Condición: Solo ejecutar este job si el evento es un 'pull_request'
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Comentar en el PR (Iniciando)
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          # El token para poder escribir
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # El número del PR se obtiene del evento
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **🤖 CI/CD en acción. Ejecutando tareas …**
+            Por favor, espera a que terminen las pruebas.
+
+      - name: 2. Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 3. Configurar Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 4. Instalar dependencias del Backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: 5. Correr Pruebas Unitarias (Pytest)
+        run: |
+          pytest backend/test_main.py
+
+      - name: 6. Comentar en el PR (Éxito)
+        # Condición: Solo ejecutar si los pasos anteriores (incluyendo las pruebas) fueron exitosos
+        if: success()
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **✅ CI/CD terminado con éxito.**
+            Las pruebas pasaron. El PR está listo para revisión.
+
+      - name: 7. Comentar en el PR (Fallo)
+        # Condición: Solo ejecutar si algún paso (como las pruebas) falló
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **❌ CI/CD fallido.**
+            Las pruebas fallaron. Por favor, revisa los logs.
+
+  # --- TRABAJO 2: EJECUTAR EN PUSH A MAIN (DESPUÉS DEL MERGE) ---
+  build-and-publish-on-main:
+    # Condición: Solo ejecutar si el evento es un 'push' (o sea, un merge)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    # Necesita el Job 1 (si es un PR) para que no corran al mismo tiempo.
+    # No, esta lógica es incorrecta si no hay protección. Lo corremos independiente.
+
+    steps:
+      - name: 1. Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 3. Instalar dependencias del Backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: 4. Correr Pruebas Unitarias (Verificación final)
+        run: |
+          pytest backend/test_main.py
+
+      - name: 5. Iniciar sesión en GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}    # Tu usuario de GitHub
+          password: ${{ secrets.GITHUB_TOKEN }} # Token automático
+
+      - name: 6. Construir y Publicar imagen del Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend  # El directorio del Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/backend:latest # ghcr.io/dvarelaj/Sandoval_Varela-mlops-U2/backend:latest
+
+      - name: 7. Construir y Publicar imagen del Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend # El directorio del Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/frontend:latest # ghcr.io/dvarelaj/Sandoval_Varela-mlops-U2/frontend:latest
