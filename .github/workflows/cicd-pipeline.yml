@@ -119,4 +119,4 @@ jobs:
         with:
           context: ./frontend # El directorio del Dockerfile
           push: true
-          t`tags: ghcr.io/${{ github.repository
+          `tags: ghcr.io/${{ github.repository
