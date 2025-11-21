@@ -8,6 +8,7 @@
 
 La siguiente arquitectura migra el desarrollo local a un ecosistema Cloud-Native en AWS, garantizando escalabilidad, trazabilidad y gobierno de datos. Se utiliza **GitHub Actions** como orquestador principal de CI/CD, integrando el código existente (FastAPI/Streamlit) con servicios gestionados de ML.
 
+```mermaid
 graph LR
     subgraph "CI/CD & Source Control"
         GH["GitHub Repo"] -->|Push| GA["GitHub Actions"]
@@ -38,6 +39,7 @@ graph LR
         ECS_Back -->|Logs & Metrics| CW["AWS CloudWatch"]
         CW -->|Drift Alarm| GA
     end
+```
 
 ---
 
