@@ -39,3 +39,54 @@ graph LR
         ECS_Back -->|Logs & Metrics| CW[AWS CloudWatch]
         CW -->|Drift Alarm| GA
     end
+
+---
+
+## 2. Descripción Detallada del Pipeline (Propuesta MLOps Cloud)
+
+Esta propuesta reestructura el flujo de trabajo para cumplir con los requisitos de validación clínica y manejo de datos sensibles.
+
+### A. Ingesta y Almacenamiento de Datos
+* **Descripción:** Centralización de historias clínicas, formularios y registros médicos que actualmente están dispersos. Se asegura el versionamiento de los datos crudos.
+* **Tecnología Propuesta:** **AWS S3 (Simple Storage Service)** con estructuración de carpetas `raw/` y `processed/`.
+* **Justificación:** S3 ofrece alta durabilidad y actúa como la fuente de verdad inmutable necesaria para auditorías médicas.
+* **Estrategia para Enfermedades Huérfanas:** Al centralizar datos en la nube, permitimos la ingesta federada desde múltiples centros médicos, aumentando el volumen de registros para enfermedades raras.
+
+### B. Preprocesamiento y Validación (Data Quality)
+* **Descripción:** Ejecución de scripts de limpieza para eliminar duplicados, anonimizar información sensible y normalizar variables numéricas.
+* **Tecnología Propuesta:** **AWS SageMaker Processing Jobs**.
+* **Justificación:** Permite ejecutar contenedores efímeros para limpiar datos sin mantener servidores encendidos.
+* **Estrategia para Enfermedades Huérfanas:** En esta etapa se implementan técnicas de aumento de datos sintéticos (**SMOTE**) para balancear las clases minoritarias antes de que lleguen al modelo.
+
+### C. Entrenamiento y Experimentación
+* **Descripción:** Entrenamiento de algoritmos (Árboles, Boosting) probando múltiples hiperparámetros.
+* **Tecnología Propuesta:** **AWS SageMaker Training Jobs**.
+* **Justificación:** Desacopla el entorno de cómputo. Permite usar instancias potentes (GPU) solo durante el entrenamiento, reduciendo costos.
+* **Estrategia para Enfermedades Huérfanas:** Se configura la función de pérdida **Focal Loss** para penalizar más fuertemente los errores en las clases raras, mejorando el recall en diagnósticos poco comunes.
+
+### D. Registro y Versionado de Modelos
+* **Descripción:** Gestión del ciclo de vida de los modelos, asegurando que solo modelos validados pasen a producción.
+* **Tecnología Propuesta:** **AWS SageMaker Model Registry**.
+* **Justificación:** Provee un linaje claro (qué datos entrenaron qué modelo), fundamental para cumplir con normas éticas en salud.
+
+### E. Despliegue de Aplicaciones (Inferencia)
+* **Descripción:** Despliegue del Frontend (Streamlit) y Backend (FastAPI) contenidas en Docker.
+* **Tecnología Propuesta:** **AWS ECR** (Imágenes) + **AWS ECS Fargate** (Ejecución).
+* **Justificación:** Fargate es "Serverless para contenedores". Elimina la necesidad de administrar servidores, reduciendo la carga operativa.
+
+### F. Monitoreo y Reentrenamiento
+* **Descripción:** Vigilancia continua del rendimiento y detección de cambios en los datos (Drift).
+* **Tecnología Propuesta:** **AWS CloudWatch**.
+* **Justificación:** Configuración de alarmas que disparan un nuevo pipeline en GitHub Actions si detectan una caída en la métrica F1-Macro.
+
+---
+
+## 3. Suposiciones y Restricciones
+
+Para garantizar la viabilidad de esta arquitectura, se establecen las siguientes premisas:
+
+1.  **Anonimización en Origen:** Se asume que los datos en S3 ya han pasado por una anonimización básica (sin nombres/cédulas) para cumplir con HIPAA/Habeas Data.
+2.  **Conectividad Hospitalaria:** Se asume que los puntos de atención tienen acceso a internet para consumir la API en AWS.
+3.  **Estrategia de Reentrenamiento:** El reentrenamiento se dispara por métricas de desempeño (Data Drift detectado en CloudWatch), no por tiempo cronológico.
+4.  **Validación Humana:** Si la probabilidad de predicción es < 70%, el Frontend recomendará explícitamente "Revisión por especialista".
+5.  **Cold Start:** Se asume la existencia de un dataset histórico mínimo suficiente para el primer entrenamiento supervisado.
