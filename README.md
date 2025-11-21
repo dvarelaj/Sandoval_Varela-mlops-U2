@@ -40,6 +40,8 @@ graph LR
         CW -->|Drift Alarm| GA
     end
 
+```
+
 ---
 
 ## 2. Descripción Detallada del Pipeline (Propuesta MLOps Cloud)
@@ -90,3 +92,19 @@ Para garantizar la viabilidad de esta arquitectura, se establecen las siguientes
 3.  **Estrategia de Reentrenamiento:** El reentrenamiento se dispara por métricas de desempeño (Data Drift detectado en CloudWatch), no por tiempo cronológico.
 4.  **Validación Humana:** Si la probabilidad de predicción es < 70%, el Frontend recomendará explícitamente "Revisión por especialista".
 5.  **Cold Start:** Se asume la existencia de un dataset histórico mínimo suficiente para el primer entrenamiento supervisado.
+
+---
+
+## 4. CHANGELOG: Evolución del Proyecto (Semana 1 vs. Semana 6)
+
+La siguiente tabla evidencia la maduración técnica del proyecto, pasando de un script local a una plataforma MLOps escalable.
+
+| Característica / Etapa | Semana 1 - 4 (Propuesta Inicial / Local) | Semana 6 (Propuesta MLOps - AWS Cloud) |
+| :--- | :--- | :--- |
+| **Gestión de Datos** | Archivos CSV locales estáticos. | **AWS S3 (Data Lake)** con versionamiento y segregación (Raw/Processed). |
+| **Lógica del Modelo** | Función `if/else` simulada (Dummy). | **Modelo ML Real** (XGBoost/RandomForest) entrenado con manejo de desbalance (SMOTE/Focal Loss). |
+| **Entrenamiento** | Ejecución manual en laptop del desarrollador. | **AWS SageMaker Training Jobs** disparados por CI/CD, con instancias optimizadas. |
+| **Gestión de Contenedores** | `docker-compose up` local manual. | **AWS ECR** (Registry) + **AWS ECS Fargate** (Orquestación Serverless). |
+| **Infraestructura** | Dependiente de la máquina local ("Works on my machine"). | **Infraestructura como Código (IaC)** y despliegue inmutable en la nube. |
+| **Monitoreo** | Inexistente (Logs de consola locales). | **AWS CloudWatch** monitoreando latencia, errores y métricas de negocio (Drift). |
+| **Pipeline CI/CD** | GitHub Actions básico (solo Pytest). | **GitHub Actions Full**: Test -> Build Image -> Push ECR -> Deploy ECS -> Trigger Training. |
